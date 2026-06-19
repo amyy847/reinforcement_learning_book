@@ -1,19 +1,44 @@
-site_name: Reinforcement Learning
+site_name: "Reinforcement Learning: A gentle introduction"
+
 nav:
   - Home: index.md
-  - Chapter 1 - Introduction: chapter1/chapter1.md
-  # - Chapter 2 - Markov Decision Processes: chapter2/chapter2.md
-  # - Chapter 3 - Dynamic Programming: chapter3/chapter3.md
-  # - Chapter 4 - Monte Carlo Methods: chapter4/chapter4.md
-  # - Chapter 5 - Temportal Difference Learning: chapter5/chapter5.md
-  # - Chapter 6 - Function Approximation: chapter6/chapter6.md
-  # - Chapter 7 - Policy Gradient Methods: chapter7/chapter7.md
-  # - Chapter 8 - Deep Reinforcement Learning: chapter8/chapter8.md
-  # - Chapter 9 - Applications in Robotics: chapter9/chapter9.md
-  # - Chapter 10 - Applications in Control: chapter10/chapter10.md
-  # - Chapter 11 - Applications in Games: chapter11/chapter11.md
-  # - Chapter 12 - Applications in [Select Domain]: chapter12/chapter12.md
-  # - Chapter 13 - Applications in [Select Domain]: chapter13/chapter13.md
-  # - Chapter 14 - Open Challenges: chapter14/chapter14.md
+  - Chapter 1 - Introduction to RL: chapter1/chapter1.md
+  - Chapter 2 - Markov Decision Processes:
+      - Part 1 – Markov Decision Processes: chapter2/chapter2a.md
+      - Part 2 – Policy Iteration on MDPs: chapter2b/chapter2b.md
+  - Chapter 3 - Dynamic Programming: "chapter 3/chapter3.md"
+  - Chapter 4 - Monte Carlo Methods: chapter4/chapter4.md
+  - Chapter 5 - Temporal Difference Learning:
+      - Part 1 – Temporal Difference Learning: chapter6/chapter6-part1.md
+      - Part 2 – SARSA and Q-learning (On- and Off-Policy learning): chapter6/chapter6-part2.md
+  - Chapter 6 - Policy Gradient Methods: chapter7/chapter7.md
+  - Chapter 7 - Deep Reinforcement Learning:
+      - Part 1 – DQN, DDQN, and Duelling Networks : chapter8/chapter8.md
+      - Part 2 – TRPO and PPO: chapter8/chapter8b.md
+  - Chapter 8 - Offline Reinforcement Learning: chapter14/chapter14.3.md
+  - Chapter 9 - Applications in Robotics and Control: chapter9/chapter9.md
+  - Chapter 10 - Reinforcement Learning from Human Feedback: chapter_rlhf/chapter_rlhf.md
+  - Chapter 11 - Applications in Gaming: chapter11/chapter11.md
+
 theme:
   name: material
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed
+  - pymdownx.tasklist
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

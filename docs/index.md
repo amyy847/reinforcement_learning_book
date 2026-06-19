@@ -1,72 +1,68 @@
-# Reinforcement Learning
+# Reinforcement Learning: A Gentle Introduction
 
-⚠️ Still under construction
+Welcome to *Reinforcement Learning: A Gentle Introduction*, a collaborative book exploring the theory, methods, and applications of reinforcement learning (RL).  
 
-Welcome to *Reinforcement Learning*, a collaborative book exploring the theory, applications, and challenges of this exciting field.
+This book was developed by seminar students of the seminar course: _Seminar on Reinforcement Learning: Theory, Applications, and Challenges_ during Spring 2026 at the German University in Cairo (GUC).  
 
-This book was developed by seminar students of **CSEN1152 (Seminar on Reinforcement Learning: Theory, Applications, and Challenges)** during the Spring of 2026 at the **German University in Cairo (GUC)**.  
-**Instructor:** Amr S. Mohamed
+Instructor: Amr S. Mohamed
 
----
-
-## 📖 About the Book
-The book introduces foundational concepts in reinforcement learning and progresses toward advanced methods and real-world applications. Each chapter is authored by students and reflects both theoretical insights and practical case studies.
+Email: amr[dot]saber[at]guc[dot]edu[dot]eg
 
 ---
 
-## 📚 Table of Contents
-- **Chapter 1 – Introduction**  
-  Provides an overview of reinforcement learning, its motivations, and its role in modern AI.  ...[placeholder]
+## About the Book
+
+The book introduces foundational concepts in reinforcement learning and gradually advances toward modern techniques and real-world applications. Each chapter is authored by students, blending theoretical insights with practical case studies.
+
+---
+
+## Table of Contents
+
+- **Chapter 1 – Introduction to RL**  
+  An high-level, brief overview of reinforcement learning.
 
 - **Chapter 2 – Markov Decision Processes**  
-  Explains the mathematical framework underlying RL.  ...[placeholder]
+  Introduces the mathematical framework of RL, including states, actions, rewards, and transition dynamics.  
+  - *Part 1 – Markov Decision Processes*: Fundamentals of MDPs and their formal definitions.  
+  - *Part 2 – Policy Iteration on MDPs*: Solving MDPs through iterative policy improvement.
 
 - **Chapter 3 – Dynamic Programming**  
-  Covers classical solution methods for MDPs.  ...[placeholder]
+  Explores solution methods such as value iteration and policy iteration, highlighting their role in planning under uncertainty.
 
 - **Chapter 4 – Monte Carlo Methods**  
-  Introduces sampling-based approaches to policy evaluation.  ...[placeholder]
+  Presents sampling-based approaches for policy evaluation and control, emphasizing learning from episodes.
 
 - **Chapter 5 – Temporal Difference Learning**  
-  Discusses TD methods that combine ideas from Monte Carlo and dynamic programming.  ...[placeholder]
+  Combines ideas from Monte Carlo and dynamic programming to enable incremental learning.  
+  - *Part 1 – Temporal Difference Learning*: Core TD concepts and algorithms.  
+  - *Part 2 – SARSA and Q-learning*: On-policy and off-policy learning methods widely used in practice.
 
-- **Chapter 6 – Function Approximation**  
-  Explores generalization techniques for large or continuous state spaces.  ...[placeholder]
+- **Chapter 6 – Policy Gradient Methods**  
+  Introduces gradient-based approaches for directly optimizing policies, including REINFORCE and actor–critic methods.
 
-- **Chapter 7 – Policy Gradient Methods**  
-  Presents gradient-based approaches for optimizing policies.  ...[placeholder]
+- **Chapter 7 – Deep Reinforcement Learning**  
+  Examines breakthroughs achieved by combining RL with deep neural networks.  
+  - *Part 1 – DQN, DDQN, and Duelling Networks*: Value-based deep RL methods.  
+  - *Part 2 – TRPO and PPO*: Policy optimization techniques that stabilize training.
 
-- **Chapter 8 – Deep Reinforcement Learning**  
-  Examines neural network–based methods and breakthroughs.  ...[placeholder]
+- **Chapter 8 – Offline Reinforcement Learning**  
+  Discusses RL methods that learn from fixed datasets without online interaction.
 
-- **Chapter 9 – Applications in Robotics**  
-  Highlights RL in autonomous control and robotics.  ...[placeholder]
+- **Chapter 9 – Applications in Robotics and Control**  
+  Deep dive into RL applications in autonomous systems and robotics.
 
-- **Chapter 10 – Applications in Control**  
-  Discusses RL in classical and modern control systems.  ...[placeholder]
+- **Chapter 10 – Reinforcement Learning from Human Feedback (RLHF)**  
+  Explores how human preferences and feedback can guide RL agents, with applications in large-language models.
 
-- **Chapter 11 – Applications in Games**  
-  Explores RL successes in board games, video games, and simulations.  ...[placeholder]
-
-- **Chapter 12 – Applications in [Select Domain]**  
-  Placeholder for a domain-specific case study.  ...[placeholder]
-
-- **Chapter 13 – Applications in [Select Domain]**  
-  Placeholder for another domain-specific case study.  ...[placeholder]
-
-- **Chapter 14 – Open Challenges**  
-  Identifies current limitations and future research directions....[placeholder]
+- **Chapter 11 – Applications in Gaming**  
+  Showcases RL successes in board games, video games, and simulations.
 
 ---
 
-## 📑 Citation
-To cite sections from this book, please use the following BibTeX entry, **citing the exact student author of the chapter:**
+## Citation
 
-```bibtex
-@misc{reinforcementLearning2026,
-  title       = {Reinforcement Learning, Chapter #},
-  author      = {Please cite the chapter's author's name},
-  year        = {2026},
-  institution = {German University in Cairo},
-  note        = {Instructor: Amr S. Mohamed}
-}
+Each chapter contains a bibtex entry at its end with its author names. To cite chapters from this book, please use the appropriate bibtex entry from the relevant chapter.
+
+## Revision
+
+For suggestions and corrections to the book, please email the instructor at their aforementioned email.
