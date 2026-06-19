@@ -270,12 +270,13 @@ model.learn(total_timesteps=500_000)
 
 Here, "independent learned critics" means separate critic estimators used in the learning objective. DDPG does maintain a target critic, but that target is a slowly updated copy of the online critic, not a second independent critic.
 
-Performance is evaluated on standard continuous control benchmarks from the MuJoCo simulator, including HalfCheetah, Hopper, Walker2d, Ant, and Humanoid. These environments range from simple systems with few degrees of freedom to highly complex robotic bodies. SAC consistently achieves higher average returns and more stable convergence than DDPG, PPO, and TD3 across all tasks, particularly in challenging environments such as Humanoid. This improvement comes from entropy maximization and the use of twin Q-networks [22].
+To ground this comparison in empirical evidence, we look at results from the SAC paper (Haarnoja et al. [22]), which benchmarked SAC against DDPG, PPO, and TD3 under identical conditions. Performance is evaluated on standard continuous control benchmarks from the MuJoCo simulator, including HalfCheetah, Hopper, Walker2d, Ant, and Humanoid. These environments range from simple systems with few degrees of freedom to highly complex robotic bodies. SAC consistently achieves higher average returns and more stable convergence than DDPG, PPO, and TD3 across all tasks, particularly in challenging environments such as Humanoid. This improvement comes from entropy maximization and the use of twin Q-networks as reported in Haarnoja et al. [22].
 
 ---
 > **Figure 9.3:** 
 ![MuJoCo Tasks](figures/mujoco.png)
-> *Caption: Examples of MuJoCo continuous control environments used to evaluate RL algorithms. Adapted from Haarnoja et al. [22]*
+> *Caption: Visual overview of the MuJoCo environments used as benchmarks in this section. 
+Adapted from Uchibe [29], Figure 2.*
 ---
 These environments represent a range of control challenges, from simple systems with few degrees of freedom to highly complex robotic bodies. The agent must learn to output continuous actions corresponding to joint torques in order to achieve task-specific objectives such as balancing, locomotion, or reaching a target
 
@@ -284,7 +285,9 @@ Haarnoja et al. [22] used some of these tasks to compare the performance of SAC 
 ---
 > **Figure 9.4:** 
 ![SAC vs DDPG performance](figures/Sacvsddpg.png)
-> *Caption: Training performance of SAC compared to DDPG, PPO, and TD3 on continuous control benchmarks. SAC achieves higher returns and more stable convergence across all tasks. Adapted from Haarnoja et al. [22]*
+> *Caption: Training performance of SAC compared to DDPG, PPO, and TD3 on continuous control benchmarks. Adapted from Haarnoja et al. [22]*
+
+In Figure 9.4, The x-axis shows training steps; the y-axis shows average cumulative return. Each line represents one algorithm. SAC (top) reaches a higher asymptotic return faster than DDPG, PPO, and TD3, and more stable convergence across all tasks. The gap is most pronounced on Humanoid, where DDPG and PPO fail to converge within the same budget.
 
 DDPG is simpler and historically important, but Figure 9.4 and the application case studies later in the chapter show why SAC has largely superseded it in robotics benchmarks: better stability, stronger exploration, and greater robustness.
 
@@ -304,6 +307,7 @@ Let's start with an uncomfortable truth about teaching robots to do things.
 Reinforcement learning works by letting an agent try things, fail, and gradually figure out what works, purely through experience. No handholding, no instruction manual. In theory, this is beautiful. In practice, it means a robot arm might spend its first thousand attempts flailing around wildly before it learns anything useful. That's fine in a video game. It's considerably less fine when the arm is attached to a real motor, mounted on an expensive chassis, next to a human being.
 
 This is the core problem that sim-to-real transfer tries to resolve. Train the robot in a simulated world, where crashes are free, time can be sped up, and nothing actually breaks, then take the policy it learned and drop it into the real world. Simple enough as an idea. But tricky in practice.
+
 ---
 
 > **Figure 9.5:** 
@@ -322,6 +326,7 @@ Why train in a simulation? The three main reasons are:
 
 **It's cheap**. A high-end robotic hand can cost tens of thousands of dollars. Running it through uncontrolled RL training, where it will inevitably collide with things, fall over, and generally be clumsy, grinds down motors and joints quickly. Keeping the chaos inside a simulator means the real hardware only comes out when the policy is already competent, and the expensive hardware stays in one piece [5].
 Together, these three factors make simulation indispensable. But they come with a catch.
+
 ---
 
 ### 9.6.2 The Sim-to-Real Gap
@@ -343,6 +348,7 @@ If a policy learns from visual input, a camera feed rather than direct sensor re
 #### Unmodeled Dynamics
 Some real-world phenomena don't appear in standard simulators at all. Gear backlash, the slight mechanical slop in a gearbox, isn't there. Cable flex isn't there. The specific way a gripper's rubber fingers deform when they press against a surface isn't there. A policy will happily learn to exploit dynamics that only exist in simulation, or remain completely unprepared for dynamics that only exist in reality [5].
 The combined effect is a policy that performs beautifully in the simulator and puzzlingly in the real world. Bridging that gap is what the rest of this section is about.
+
 ---
 
 ### 9.6.3 Approaches to Bridging the Sim-to-Real Gap
@@ -355,18 +361,19 @@ So we have a problem. Simulation is essential for training, but simulation isn't
 
 #### 9.6.3.1 Domain Randomization
 
-##### Core Idea
+#### Core Idea
 The first instinct when facing the sim-to-real gap is to make the simulator more accurate. Model friction better. Improve the lighting. Add noise to the sensors. This seems reasonable, and it is, but it's chasing an impossible goal. No simulator will ever be a perfect replica of the real world. There will always be something it gets wrong.
 Domain randomization flips the problem entirely. Instead of trying to make the simulator right, it deliberately makes the simulator random.
 The idea is this: if you train a policy across thousands of slightly different simulated worlds, some with slippery floors, some with sticky ones, some with bright lights, some with dim ones, some with heavy robot arms, some with lighter ones, the policy can't afford to specialize. It has to find behaviors that work across all of them. And if the distribution of those simulated worlds is broad enough, the real world starts to look like just one more sample from the training set [1].
 Think of it like training for a hiking trip. You could obsess over memorizing the exact trail, or you could train on dozens of different terrains and trust that your legs will handle whatever shows up. Domain randomization takes the second approach.
+
 ---
 > **Figure 9.7:** 
 ![Image 2](figures/image2.png)
 > *Caption: Domain randomization trains across a wide distribution of simulated environments, encouraging the policy to learn robust behaviors that generalize to the real world. The real world becomes just another point in the training distribution. Adapted from Tobin et al. [1]*
 ---
 
-##### What Gets Randomized
+#### What Gets Randomized
 In practice, randomization can be applied across a broad range of simulation properties [1, 2]:
 
 - **Physical parameters:** friction coefficients, mass and inertia tensors, joint damping, contact stiffness, and actuator gains.
@@ -390,7 +397,7 @@ def sample_domain_params():
 
 The episode runs, the policy learns, and next episode it gets a completely different set of numbers. Over millions of episodes, it builds up an implicit understanding of how to behave robustly across the whole distribution.
 
-##### What the Research Found
+#### What the Research Found
 
 The landmark paper here is Tobin et al. [1], and the results are still a little surprising when you first read them. Their setup: train an object detector entirely on synthetic images, not photorealistic ones, but deliberately ugly, algorithmically generated textures, randomized lighting, randomized camera angles (you can see them in Figure 9.7). Then deploy it on a real robot arm with a real camera in a real room, and ask it to locate objects precisely. No fine-tuning on any real images at all.
 It worked: localization accuracy was within 1.5 cm. The images it trained on looked nothing like the real world, but the diversity of those images was enough to generalize.
@@ -398,10 +405,10 @@ It worked: localization accuracy was within 1.5 cm. The images it trained on loo
 Peng et al. [2] showed that the same principle holds in the dynamics domain, randomizing mass, friction, and damping during locomotion and manipulation training produced policies that transferred significantly better to real hardware than those trained on a single, carefully calibrated simulation. They applied this training to a robotic arm whose task was to move objects to a desired spot, achieving 91% ± 3% accuracy.
 
 Even when calibration was done carefully, the results were not as good as those with randomization. This is a slightly counterintuitive result: random noise beats careful tuning. But it makes sense once you accept that the goal is not accuracy, but robustness.
-##### A Striking Real-World Example of Domain Randomization at Scale
+#### A Striking Real-World Example of Domain Randomization at Scale
 OpenAI's Dactyl project trained a robotic hand to solve a Rubik's Cube using massive domain randomization, randomizing hundreds of physical parameters simultaneously. The full story and videos are at openai.com/research/solving-rubiks-cube. It's worth watching. The hand moves like nothing trained in clean simulation.
 
-##### Trade-offs
+#### Trade-offs
 
 Domain randomization is powerful but not free. The randomization distribution is a design choice, and getting it wrong hurts in both directions.
 Too narrow, and the real world still falls outside your training distribution, you've just added noise without real coverage. Too wide, and the policy learns to be paralyzed. If friction can be anywhere from near-zero to near-infinite, the only universally safe behavior might be to barely move. You get a robot that's technically robust to everything but useful for nothing.
@@ -415,11 +422,11 @@ Domain randomization solves one problem and creates another. The gap it leaves, 
 Ma et al. [5] asked a natural question: what if you just asked a language model to do this instead?
 The result is DrEureka, Domain Randomization Eureka. And it's a good example of how language models are starting to show up in places you might not expect.
 
-##### The Problem with the Old Way
+#### The Problem with the Old Way
 Designing a reward function for a real-world robot task is harder than it sounds. You don't just want a policy that performs well in simulation, you want one that performs well on hardware, which means it needs to be robust to the sim-to-real gap, and it needs to avoid damaging the robot in the process. A policy that sprints across a gym floor in simulation might drag its motors on real carpet. A reward function that doesn't penalize extreme torque outputs might produce behaviors that are thrilling to watch but ruinous for the hardware.
 Historically, there was no principled automated way to design either the reward or the randomization distribution. Every new task was a fresh engineering problem [5].
 
-##### Three Stages, One LLM
+#### Three Stages, One LLM
 DrEureka breaks the design problem into three sequential stages, each using an LLM for a different kind of reasoning [5].
 
 ---
@@ -427,13 +434,13 @@ DrEureka breaks the design problem into three sequential stages, each using an L
 ![Image 4](figures/image4.png)
 > *Caption: The DrEureka pipeline. Adapted from Ma et al. [5]*
 ---
-##### Stage 1: Write the Reward Function
+#### Stage 1: Write the Reward Function
 The LLM is given the environment source code and a description of the task. It generates candidate reward functions as executable Python, not vague natural-language descriptions, actual runnable code. Crucially, a safety instruction is included in the prompt, asking the LLM to penalize behaviors like excessive motor torques or unstable gaits. Multiple candidates are generated, each one is trained against, and the performance scores are fed back to the LLM so it can refine. It turns out that LLMs are quite good at balancing safety terms against task performance in ways that are genuinely difficult to achieve by manually tuning penalty weights after the fact.
-##### Stage 2: Figure Out What the Policy Is Sensitive To
+#### Stage 2: Figure Out What the Policy Is Sensitive To
 Once a good reward function and policy exist, RAPP (Reward-Aware Physics Prior) runs a systematic sensitivity analysis. RAPP is a lightweight mechanism that restricts the ranges of physics parameters to those where the policy still performs well, ensuring domain randomization is grounded in actual reward outcomes rather than arbitrary engineering choices. For each randomizable physics parameter, RAPP perturbs the value while holding everything else constant and measures how much the policy’s performance degrades. The output is a set of ranges: “the policy still succeeds when friction is anywhere from X to Y.” These are empirically grounded bounds, tied to the actual learned behavior rather than to intuition alone.
-##### Stage 3: Choose What to Randomize
+#### Stage 3: Choose What to Randomize
 The sensitivity ranges from Stage 2 are handed to the LLM as context. It's then asked to select which parameters to include in the randomization distribution and to set the ranges, but it isn't just told to fill in the bounds mechanically. It applies physical reasoning. In the locomotion task, for example, the LLM chose a narrower range for restitution with the explanation that "restitution affects how the robot bounces off surfaces … lower range as we're not focusing on bouncing." That's not a lookup; that's a judgment call about task relevance.
-##### The Results
+#### The Results
 DrEureka was tested on two platforms: a Unitree Go1 quadruped (walking) and a LEAP dexterous hand (rotating a cube in-hand) [5].
 On locomotion, the human-engineered baseline achieved a mean forward velocity of 1.32 m/s. DrEureka's mean was 1.66 m/s, about 26% faster, and the best DrEureka policy hit 1.83 m/s. Notably, policies designed using only the Eureka reward-generation framework but without any domain randomization failed to walk on real hardware at all. Good reward design alone is not enough.
 
@@ -449,12 +456,13 @@ Two research directions emerged that sidestep the renderer problem altogether, a
 Amini et al. [8] throw the renderer out entirely and replace it with real-world data. Schlereth-Groh et al. [9] go in the opposite direction: instead of making the training images more realistic, they strip images down to something so abstract that it looks the same whether it came from simulation or reality.
 
 
-##### VISTA: When You Use Reality as the Simulator
+#### VISTA: When You Use Reality as the Simulator
 The starting observation in Amini et al. [8] says: policies trained in CARLA did not transfer to real roads. CARLA is an open-source autonomous-driving simulator used to generate urban scenes, traffic behavior, weather conditions, and camera-like sensor observations for training and testing driving policies before they are deployed on real vehicles. Despite domain randomization, despite viewpoint augmentation, the visual gap was too large. The rendered world and the photographed world were just too different.
 Their solution: don't render the world at all. Collect an hour of real driving footage per environment, a human drives, the camera records, and build a simulator that generates training observations by transforming those real images, not by generating synthetic ones.
 
 Here's how VISTA works. The system records the human's trajectory through the environment. When the virtual agent decides to take a slightly different path, say, drifting toward the lane edge, VISTA doesn't render what that view would look like. Instead, it takes the nearest real recorded frame, estimates a depth map using a neural network, lifts that frame into 3D space, shifts the virtual camera to where the agent actually is, and re-projects it back to 2D. The output is a photorealistic image of what the agent would actually see from its new position, because it was built from a photograph, not a render [8].
 This approach covers the full range of positions within a lane, up to ±1.5 m lateral offset and ±15° rotation, including the off-center positions a car might end up in during a near-miss.
+
 ---
 > **Figure 9.9:**
 ![Image 8](figures/image8.png)
@@ -494,22 +502,22 @@ Here's the thing that all the methods above have in common: they make the policy
 For a lot of applications, that's fine. A navigation robot that works 95% of the time is useful. But for some applications, a robotic arm working next to a human, a drone flying over a crowd, a medical device, "likely to be safe" isn't good enough. You need something stronger. You need to be able to say: regardless of what disturbances show up at deployment, this system will not violate its safety constraints.
 This is the domain of safe learning in robotics [3], and it's a field that has developed a sophisticated set of tools for exactly this problem.
 
-##### Why This Is Hard
+#### Why This Is Hard
 Even after training with domain randomization, real-world deployment introduces uncertainties that weren't in the training distribution. Sensor noise that was randomized slightly wrong. A configuration the robot was never placed in during training. An unexpected external disturbance. In a safety-critical system, any of these can cascade into a failure [3].
 Brunke et al. [3] lay out the challenge clearly. The robot's dynamics are never perfectly modeled, there are always residual unknowns that grow more significant in unusual configurations. Sensors are noisy and may be systematically biased. The environment may contain other agents whose behavior can't be predicted. These aren't engineering oversights. They're fundamental properties of the real world. The question is how to build systems that remain safe in spite of them.
 
-##### Three Levels of Safety
+#### Three Levels of Safety
 Not all safety guarantees are equal. Brunke et al. [3] define three levels of safety, which is worth understanding before diving into the methods.
-##### Level I: Soft Constraints
+#### Level I: Soft Constraints
 The reward function includes a penalty for unsafe behavior, so the policy learns to avoid it. This is easy to implement and often works well in practice, but provides no formal guarantee, the policy might still violate the constraint if conditions are unusual enough.
 
-##### Level II: Probabilistic Guarantees
+#### Level II: Probabilistic Guarantees
 The policy satisfies safety constraints with high probability, say, 99% of the time, under its deployment distribution. This is formally stronger and often practically sufficient.
 
-##### Level III: Hard Constraints
+#### Level III: Hard Constraints
 The system is guaranteed to satisfy all safety constraints, always, under any disturbance within a defined uncertainty set. No exceptions. This is the strongest and most demanding guarantee, and it requires the most prior knowledge about the system's dynamics.
 
-##### Safety Filters: A Practical Approach
+#### Safety Filters: A Practical Approach
 
 One of the most practically useful ideas in this space is the safety filter [3]. The concept is simple. The RL policy proposes an action each timestep, as usual. Before that action is executed, a separate supervisory module, the safety filter, checks whether it would violate a constraint. If it's safe, it passes through unchanged. If it's unsafe, the filter replaces it with the closest safe action and executes that instead.
 
@@ -680,7 +688,7 @@ To keep the drone from getting overwhelmed, they added a "memory bank" (a replay
 A Two-Step Education
 The most practical part of their method was a shortcut called **Transfer Learning**. Rather than dropping a "baby" drone into a complex city, they trained it in two stages:
 
-**Preschool:** First, the drone practiced in an empty, obstacle-free space just to learn the basics of reaching a target.
+**Preschool:** First, the drone was trained in simulation in an empty, obstacle-free virtual space just to learn the basics of reaching a target.
 
 **The Real World:** Once it mastered the basics, they moved that "learned brain" into a city with buildings. Because it already knew how to fly toward a goal, it could spend all its energy learning how to dodge obstacles.
 
@@ -1323,6 +1331,7 @@ Long-horizon tasks, such as assembling a multi-part mechanism, require sequences
 
 [28] Morales, E. F., Murrieta-Cid, R., Becerra, I., & Esquivel-Basaldua, M. A. (2021). A survey on deep learning and deep reinforcement learning in robotics. *Intelligent Service Robotics, 14*, 773–805.
 
+[29] E. Uchibe, "Cooperative and Competitive Reinforcement and Imitation Learning for a Mixture of Heterogeneous Learning Modules," *Frontiers in Neurorobotics*, vol. 12, p. 61, Sep. 2018.
 
 
 To cite the chapter parts separately, please use the following BibTeX entries:
